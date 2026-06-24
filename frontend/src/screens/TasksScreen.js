@@ -80,25 +80,25 @@ export default function TasksScreen() {
     }
   };
 
-  const handleToggle = (task) => {
-    Alert.alert(
-      'Completar tarea',
-      `¿Estás seguro de marcar "${task.title}" como completada?`,
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Completar',
-          onPress: async () => {
-            try {
-              await updateTask(task._id, { completed: true });
-              await loadTasks();
-            } catch (e) {
-              console.error(e);
-            }
-          },
+  const handleTaskAction = (task) => {
+    Alert.alert(task.title, 'Selecciona una acción', [
+      {
+        text: 'Completar',
+        onPress: async () => {
+          try {
+            await updateTask(task._id, { completed: true });
+            await loadTasks();
+          } catch (e) {
+            console.error(e);
+          }
         },
-      ]
-    );
+      },
+      {
+        text: 'Editar',
+        onPress: () => handleEdit(task),
+      },
+      { text: 'Cancelar', style: 'cancel' },
+    ]);
   };
 
   const handleDelete = (id) => {
@@ -140,7 +140,7 @@ export default function TasksScreen() {
         renderItem={({ item }) => (
           <TaskCard
             task={item}
-            onToggle={handleToggle}
+            onToggle={handleTaskAction}
             onEdit={handleEdit}
             onDelete={handleDelete}
           />
