@@ -34,13 +34,25 @@ export default function CompletedScreen() {
     setRefreshing(false);
   }, [loadTasks]);
 
-  const handleToggle = async (task) => {
-    try {
-      await updateTask(task._id, { completed: !task.completed });
-      await loadTasks();
-    } catch (e) {
-      console.error(e);
-    }
+  const handleToggle = (task) => {
+    Alert.alert(
+      'Desmarcar tarea',
+      `¿Estás seguro de mover "${task.title}" a pendientes?`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Sí, mover',
+          onPress: async () => {
+            try {
+              await updateTask(task._id, { completed: false });
+              await loadTasks();
+            } catch (e) {
+              console.error(e);
+            }
+          },
+        },
+      ]
+    );
   };
 
   const handleDelete = (id) => {

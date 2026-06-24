@@ -80,13 +80,25 @@ export default function TasksScreen() {
     }
   };
 
-  const handleToggle = async (task) => {
-    try {
-      await updateTask(task._id, { completed: !task.completed });
-      await loadTasks();
-    } catch (e) {
-      console.error(e);
-    }
+  const handleToggle = (task) => {
+    Alert.alert(
+      'Completar tarea',
+      `¿Estás seguro de marcar "${task.title}" como completada?`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Completar',
+          onPress: async () => {
+            try {
+              await updateTask(task._id, { completed: true });
+              await loadTasks();
+            } catch (e) {
+              console.error(e);
+            }
+          },
+        },
+      ]
+    );
   };
 
   const handleDelete = (id) => {
