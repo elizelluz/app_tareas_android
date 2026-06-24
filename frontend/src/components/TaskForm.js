@@ -57,9 +57,14 @@ export default function TaskForm({ visible, onClose, onSubmit, initial }) {
       >
         <View style={styles.container}>
           <ScrollView showsVerticalScrollIndicator={false}>
-            <Text style={styles.title}>
-              {initial ? 'Editar Tarea' : 'Nueva Tarea'}
-            </Text>
+            <View style={styles.header}>
+              <Text style={styles.title}>
+                {initial ? 'Editar Tarea' : 'Nueva Tarea'}
+              </Text>
+              <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
+                <Text style={styles.closeBtnText}>✕</Text>
+              </TouchableOpacity>
+            </View>
 
             <Text style={styles.label}>Título</Text>
             <TextInput
@@ -179,11 +184,28 @@ const styles = StyleSheet.create({
     padding: 24,
     maxHeight: '85%',
   },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
   title: {
     fontSize: 22,
     fontWeight: '700',
     color: colors.text,
-    marginBottom: 20,
+  },
+  closeBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: colors.background,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  closeBtnText: {
+    fontSize: 16,
+    color: colors.textSecondary,
   },
   label: {
     fontSize: 13,
