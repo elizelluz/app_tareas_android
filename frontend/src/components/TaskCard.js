@@ -8,12 +8,11 @@ const priorityColors = {
   Baja: colors.priority.Baja,
 };
 
-export default function TaskCard({ task, onToggle, onEdit, onDelete }) {
+export default function TaskCard({ task, onPress, onComplete, onDelete }) {
   return (
     <TouchableOpacity
       style={[styles.card, task.completed && styles.completedCard]}
-      onPress={() => onToggle(task)}
-      onLongPress={() => onEdit(task)}
+      onPress={() => onPress(task)}
       activeOpacity={0.7}
     >
       <View style={styles.leftSection}>
@@ -62,13 +61,22 @@ export default function TaskCard({ task, onToggle, onEdit, onDelete }) {
           </View>
         </View>
       </View>
-      <TouchableOpacity
-        style={styles.deleteBtn}
-        onPress={() => onDelete(task._id)}
-        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-      >
-        <Text style={styles.deleteText}>✕</Text>
-      </TouchableOpacity>
+      <View style={styles.actions}>
+        <TouchableOpacity
+          style={styles.completeBtn}
+          onPress={() => onComplete(task)}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
+          <Text style={styles.completeText}>✓</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.deleteBtn}
+          onPress={() => onDelete(task._id)}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
+          <Text style={styles.deleteText}>✕</Text>
+        </TouchableOpacity>
+      </View>
     </TouchableOpacity>
   );
 }
@@ -138,6 +146,24 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: colors.textSecondary,
   },
+  actions: {
+    flexDirection: 'row',
+    gap: 6,
+    marginLeft: 8,
+  },
+  completeBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#51CF6615',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  completeText: {
+    fontSize: 16,
+    color: colors.priority.Baja,
+    fontWeight: '700',
+  },
   deleteBtn: {
     width: 32,
     height: 32,
@@ -145,7 +171,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#FF6B6B15',
     alignItems: 'center',
     justifyContent: 'center',
-    marginLeft: 8,
   },
   deleteText: {
     fontSize: 14,

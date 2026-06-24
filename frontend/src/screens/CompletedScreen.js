@@ -81,8 +81,8 @@ export default function CompletedScreen() {
         renderItem={({ item }) => (
           <TaskCard
             task={item}
-            onToggle={handleToggle}
-            onEdit={() => {}}
+            onPress={() => {}}
+            onComplete={handleToggle}
             onDelete={handleDelete}
           />
         )}
