@@ -19,6 +19,16 @@ class Status(str, Enum):
     in_progress = "in_progress"
     completed = "completed"
 
+class ProjectCreate(BaseModel):
+    name: str
+    color: Optional[str] = "#6C63FF"
+    description: Optional[str] = ""
+
+class ProjectUpdate(BaseModel):
+    name: Optional[str] = None
+    color: Optional[str] = None
+    description: Optional[str] = None
+
 class TaskCreate(BaseModel):
     title: str
     description: Optional[str] = ""
@@ -26,6 +36,7 @@ class TaskCreate(BaseModel):
     category: Category = Category.otros
     due_date: Optional[str] = None
     status: Status = Status.pending
+    project_id: Optional[str] = None
 
 class TaskUpdate(BaseModel):
     title: Optional[str] = None
@@ -35,6 +46,7 @@ class TaskUpdate(BaseModel):
     due_date: Optional[str] = None
     status: Optional[Status] = None
     completed: Optional[bool] = None
+    project_id: Optional[str] = None
 
 class TaskDB(BaseModel):
     id: str = Field(alias="_id")
@@ -45,4 +57,5 @@ class TaskDB(BaseModel):
     due_date: Optional[str] = None
     status: Status = Status.pending
     completed: bool = False
+    project_id: Optional[str] = None
     created_at: str

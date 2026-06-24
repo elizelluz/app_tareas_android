@@ -15,12 +15,13 @@ import { colors } from '../theme/colors';
 const PRIORITIES = ['Alta', 'Media', 'Baja'];
 const CATEGORIES = ['Trabajo', 'Personal', 'Compras', 'Otros'];
 
-export default function TaskForm({ visible, onClose, onSubmit, initial }) {
+export default function TaskForm({ visible, onClose, onSubmit, initial, projects, defaultProjectId }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState('Media');
   const [category, setCategory] = useState('Otros');
   const [dueDate, setDueDate] = useState('');
+  const [projectId, setProjectId] = useState(null);
 
   useEffect(() => {
     if (initial) {
@@ -29,14 +30,16 @@ export default function TaskForm({ visible, onClose, onSubmit, initial }) {
       setPriority(initial.priority || 'Media');
       setCategory(initial.category || 'Otros');
       setDueDate(initial.due_date ? initial.due_date.split('T')[0] : '');
+      setProjectId(initial.project_id || null);
     } else {
       setTitle('');
       setDescription('');
       setPriority('Media');
       setCategory('Otros');
       setDueDate('');
+      setProjectId(defaultProjectId || null);
     }
-  }, [initial, visible]);
+  }, [initial, visible, defaultProjectId]);
 
   const handleSubmit = () => {
     if (!title.trim()) return;
@@ -47,6 +50,7 @@ export default function TaskForm({ visible, onClose, onSubmit, initial }) {
       category,
       due_date: dueDate || null,
       status: initial?.status || 'pending',
+      project_id: projectId || null,
     });
   };
 
@@ -136,6 +140,40 @@ export default function TaskForm({ visible, onClose, onSubmit, initial }) {
                 </TouchableOpacity>
               ))}
             </View>
+
+            {projects && projects.length > 0 && (
+              <>
+                <Text style={styles.label}>Proyecto</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.projectsRow}>
+                  <TouchableOpacity
+                    style={[styles.projectChip, !projectId && styles.projectChipActive]}
+                    onPress={() => setProjectId(null)}
+                  >
+                    <Text style={[styles.projectChipText, !projectId && styles.projectChipTextActive]}>Sin proyecto</Text>
+                  </TouchableOpacity>
+                  {projects.map((p) => (
+                    <TouchableOpacity
+                      key={p._id}
+                      style={[
+                        styles.projectChip,
+                        projectId === p._id && { backgroundColor: p.color || colors.primary },
+                      ]}
+                      onPress={() => setProjectId(p._id)}
+                    >
+                      <View style={[styles.projectChipDot, { backgroundColor: p.color || colors.primary }]} />
+                      <Text
+                        style={[
+                          styles.projectChipText,
+                          projectId === p._id && styles.projectChipTextActive,
+                        ]}
+                      >
+                        {p.name}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </>
+            )}
 
             <Text style={styles.label}>Fecha de vencimiento</Text>
             <TextInput
@@ -233,6 +271,39 @@ const styles = StyleSheet.create({
   optionsRow: {
     flexDirection: 'row',
     gap: 8,
+  },
+  projectsRow: {
+    flexDirection: 'row',
+    marginBottom: 4,
+  },
+  projectChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: colors.background,
+    borderWidth: 1,
+    borderColor: colors.border,
+    marginRight: 8,
+  },
+  projectChipActive: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  projectChipDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginRight: 6,
+  },
+  projectChipText: {
+    fontSize: 13,
+    color: colors.text,
+    fontWeight: '600',
+  },
+  projectChipTextActive: {
+    color: colors.white,
   },
   optionBtn: {
     flex: 1,

@@ -6,11 +6,12 @@ const BASE_URL = Platform.OS === 'android'
 
 export const API_URL = BASE_URL;
 
-export async function fetchTasks(search = '', priority = '', category = '') {
+export async function fetchTasks(search = '', priority = '', category = '', project_id = '') {
   const params = new URLSearchParams();
   if (search) params.append('search', search);
   if (priority) params.append('priority', priority);
   if (category) params.append('category', category);
+  if (project_id) params.append('project_id', project_id);
 
   const res = await fetch(`${API_URL}/api/tasks?${params}`);
   return res.json();

@@ -11,32 +11,39 @@ import {
 import KanbanColumn from '../components/KanbanColumn';
 import TaskForm from '../components/TaskForm';
 import { fetchTasks, createTask, updateTask, deleteTask } from '../api/tasks';
+import { fetchProjects } from '../api/projects';
 import { colors } from '../theme/colors';
 
 export default function KanbanScreen() {
   const [tasks, setTasks] = useState([]);
+  const [projects, setProjects] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
+  const [selectedProject, setSelectedProject] = useState(null);
 
-  const loadTasks = useCallback(async () => {
+  const loadData = useCallback(async () => {
     try {
-      const data = await fetchTasks();
-      setTasks(data);
+      const [tasksData, projectsData] = await Promise.all([
+        fetchTasks('', '', '', selectedProject || ''),
+        fetchProjects(),
+      ]);
+      setTasks(tasksData);
+      setProjects(projectsData);
     } catch (e) {
       console.error(e);
     }
-  }, []);
+  }, [selectedProject]);
 
   useEffect(() => {
-    loadTasks();
-  }, [loadTasks]);
+    loadData();
+  }, [loadData]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await loadTasks();
+    await loadData();
     setRefreshing(false);
-  }, [loadTasks]);
+  }, [loadData]);
 
   const pending = tasks.filter((t) => t.status === 'pending');
   const inProgress = tasks.filter((t) => t.status === 'in_progress');
@@ -51,7 +58,7 @@ export default function KanbanScreen() {
       }
       setModalVisible(false);
       setEditingTask(null);
-      await loadTasks();
+      await loadData();
     } catch (e) {
       console.error(e);
     }
@@ -71,7 +78,7 @@ export default function KanbanScreen() {
           : 'pending';
     try {
       await updateTask(task._id, { status: nextStatus });
-      await loadTasks();
+      await loadData();
     } catch (e) {
       console.error(e);
     }
@@ -86,7 +93,7 @@ export default function KanbanScreen() {
         onPress: async () => {
           try {
             await deleteTask(id);
-            await loadTasks();
+            await loadData();
           } catch (e) {
             console.error(e);
           }
@@ -95,12 +102,20 @@ export default function KanbanScreen() {
     ]);
   };
 
+  const currentProject = projects.find((p) => p._id === selectedProject);
+
   return (
     <View style={styles.container}>
       <View style={styles.boardHeader}>
         <View>
-          <Text style={styles.boardTitle}>Kanban</Text>
-          <Text style={styles.boardSubtitle}>{tasks.length} tareas totales</Text>
+          <Text style={styles.boardTitle}>
+            {currentProject ? currentProject.name : 'Kanban'}
+          </Text>
+          <Text style={styles.boardSubtitle}>
+            {currentProject
+              ? `${tasks.length} tareas · ${projects.length} proyectos`
+              : `${tasks.length} tareas totales`}
+          </Text>
         </View>
         <TouchableOpacity
           style={styles.addBtn}
@@ -112,6 +127,42 @@ export default function KanbanScreen() {
           <Text style={styles.addBtnText}>+ Nueva</Text>
         </TouchableOpacity>
       </View>
+
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.projectFilter}
+        contentContainerStyle={styles.projectFilterContent}
+      >
+        <TouchableOpacity
+          style={[styles.filterChip, !selectedProject && styles.filterChipActive]}
+          onPress={() => setSelectedProject(null)}
+        >
+          <Text style={[styles.filterChipText, !selectedProject && styles.filterChipTextActive]}>
+            Todas
+          </Text>
+        </TouchableOpacity>
+        {projects.map((p) => (
+          <TouchableOpacity
+            key={p._id}
+            style={[
+              styles.filterChip,
+              selectedProject === p._id && { backgroundColor: p.color || colors.primary },
+            ]}
+            onPress={() => setSelectedProject(p._id)}
+          >
+            <View style={[styles.filterDot, { backgroundColor: p.color || colors.primary }]} />
+            <Text
+              style={[
+                styles.filterChipText,
+                selectedProject === p._id && styles.filterChipTextActive,
+              ]}
+            >
+              {p.name}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
 
       <ScrollView
         horizontal
@@ -165,6 +216,8 @@ export default function KanbanScreen() {
         }}
         onSubmit={handleCreate}
         initial={editingTask}
+        projects={projects}
+        defaultProjectId={selectedProject}
       />
     </View>
   );
@@ -204,6 +257,46 @@ const styles = StyleSheet.create({
   addBtnText: {
     fontSize: 14,
     fontWeight: '700',
+    color: colors.white,
+  },
+  projectFilter: {
+    maxHeight: 48,
+    backgroundColor: colors.white,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  projectFilterContent: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    gap: 8,
+    flexDirection: 'row',
+  },
+  filterChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    backgroundColor: colors.background,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  filterChipActive: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  filterDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginRight: 6,
+  },
+  filterChipText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  filterChipTextActive: {
     color: colors.white,
   },
   board: {

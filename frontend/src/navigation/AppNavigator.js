@@ -2,6 +2,7 @@ import React from 'react';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { StyleSheet } from 'react-native';
 import KanbanScreen from '../screens/KanbanScreen';
+import ProjectsScreen from '../screens/ProjectsScreen';
 import StatsScreen from '../screens/StatsScreen';
 import { colors } from '../theme/colors';
 
@@ -16,9 +17,11 @@ export default function AppNavigator() {
         tabBarIndicatorStyle: styles.indicator,
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textSecondary,
+        tabBarScrollEnabled: true,
       }}
     >
       <Tab.Screen name="Kanban" component={KanbanScreen} />
+      <Tab.Screen name="Proyectos" component={ProjectsScreen} />
       <Tab.Screen name="Estadísticas" component={StatsScreen} />
     </Tab.Navigator>
   );
@@ -34,7 +37,7 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
   },
   tabLabel: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '700',
     textTransform: 'none',
   },
