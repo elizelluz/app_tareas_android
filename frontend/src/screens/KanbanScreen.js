@@ -28,8 +28,8 @@ export default function KanbanScreen() {
         fetchTasks('', '', '', selectedProject || ''),
         fetchProjects(),
       ]);
-      setTasks(tasksData);
-      setProjects(projectsData);
+      setTasks(Array.isArray(tasksData) ? tasksData : []);
+      setProjects(Array.isArray(projectsData) ? projectsData : []);
     } catch (e) {
       console.error(e);
     }
@@ -102,7 +102,7 @@ export default function KanbanScreen() {
     ]);
   };
 
-  const currentProject = projects.find((p) => p._id === selectedProject);
+  const currentProject = Array.isArray(projects) ? projects.find((p) => p._id === selectedProject) : null;
 
   return (
     <View style={styles.container}>

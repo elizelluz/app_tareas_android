@@ -141,7 +141,7 @@ export default function TaskForm({ visible, onClose, onSubmit, initial, projects
               ))}
             </View>
 
-            {projects && projects.length > 0 && (
+            {Array.isArray(projects) && projects.length > 0 && (
               <>
                 <Text style={styles.label}>Proyecto</Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.projectsRow}>
