@@ -15,7 +15,6 @@
 
 ### Paso 1: Descargar el Código
 
-Clona o descarga el repositorio:
 ```bash
 git clone https://github.com/elizelluz/app_tareas_android.git
 cd app_tareas_android/frontend
@@ -30,31 +29,40 @@ Ingresa tu email y contraseña de Expo.
 
 ### Paso 3: Configurar el Proyecto
 
+Asegúrate de que `app.json` **NO** tenga un `projectId` (debe verse así):
+
+```json
+"extra": {}
+```
+
+Luego ejecuta:
+
 ```bash
 eas build:configure
 ```
-Esto creará un proyecto en tu cuenta de Expo y te asignará un **Project ID**.
 
-### Paso 4: Actualizar app.json con tu Project ID
+Esto creará el proyecto en tu cuenta de Expo y **asignará automáticamente** el `projectId` en `app.json`.
 
-Abre `app.json` y reemplaza `YOUR_EAS_PROJECT_ID` con el ID que obtuviste:
+### Paso 4: Verificar que el Project ID se asignó
+
+Abre `app.json` y confirma que ahora tiene el `projectId`:
 
 ```json
 "extra": {
   "eas": {
-    "projectId": "TU-PROJECT-ID-AQUI"
+    "projectId": "XXXX-XXXX-XXXX-XXXX"
   }
 }
 ```
 
 ### Paso 5: Generar el APK
 
-**Para un APK de prueba (preview) — recomendado:**
+**APK de prueba (preview) — recomendado:**
 ```bash
 eas build --platform android --profile preview
 ```
 
-**Para un APK de producción:**
+**APK de producción:**
 ```bash
 eas build --platform android --profile production
 ```
@@ -101,6 +109,14 @@ npm install -g eas-cli
 **Error: "Not authenticated"**
 ```bash
 eas login
+```
+
+**Error: "projectId must be a string, found object"**
+```bash
+# Elimina el projectId de app.json:
+# "extra": { "eas": { "projectId": null } }  →  "extra": {}
+# Luego vuelve a ejecutar:
+eas build:configure
 ```
 
 **Error durante el build:**
