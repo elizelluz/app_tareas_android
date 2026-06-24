@@ -112,7 +112,20 @@ export default function ProjectsScreen({ selectedProject, onSelectProject }) {
               { borderLeftColor: item.color || colors.primary },
               selectedProject === item._id && styles.selectedCard,
             ]}
-            onPress={() => onSelectProject?.(item._id === selectedProject ? null : item._id)}
+            onPress={() => {
+              Alert.alert(item.name, 'Selecciona una acción', [
+                {
+                  text: 'Editar',
+                  onPress: () => openEdit(item),
+                },
+                {
+                  text: 'Eliminar',
+                  style: 'destructive',
+                  onPress: () => handleDelete(item._id),
+                },
+                { text: 'Cancelar', style: 'cancel' },
+              ]);
+            }}
             onLongPress={() => openEdit(item)}
           >
             <View style={styles.projectInfo}>
@@ -124,13 +137,6 @@ export default function ProjectsScreen({ selectedProject, onSelectProject }) {
                 ) : null}
               </View>
             </View>
-            <TouchableOpacity
-              style={styles.deleteBtn}
-              onPress={() => handleDelete(item._id)}
-              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-            >
-              <Text style={styles.deleteText}>✕</Text>
-            </TouchableOpacity>
           </TouchableOpacity>
         )}
         contentContainerStyle={styles.list}
@@ -149,9 +155,20 @@ export default function ProjectsScreen({ selectedProject, onSelectProject }) {
       <Modal visible={modalVisible} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
           <View style={styles.modal}>
-            <Text style={styles.modalTitle}>
-              {editing ? 'Editar Proyecto' : 'Nuevo Proyecto'}
-            </Text>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>
+                {editing ? 'Editar Proyecto' : 'Nuevo Proyecto'}
+              </Text>
+              <TouchableOpacity
+                style={styles.closeBtn}
+                onPress={() => {
+                  setModalVisible(false);
+                  setEditing(null);
+                }}
+              >
+                <Text style={styles.closeBtnText}>✕</Text>
+              </TouchableOpacity>
+            </View>
             <TextInput
               style={styles.input}
               value={name}
@@ -316,11 +333,28 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 24,
     padding: 24,
   },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
   modalTitle: {
     fontSize: 20,
     fontWeight: '700',
     color: colors.text,
-    marginBottom: 20,
+  },
+  closeBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: colors.background,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  closeBtnText: {
+    fontSize: 16,
+    color: colors.textSecondary,
   },
   input: {
     backgroundColor: colors.background,
