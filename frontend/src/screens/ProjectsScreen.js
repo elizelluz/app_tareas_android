@@ -112,21 +112,7 @@ export default function ProjectsScreen({ selectedProject, onSelectProject }) {
               { borderLeftColor: item.color || colors.primary },
               selectedProject === item._id && styles.selectedCard,
             ]}
-            onPress={() => {
-              Alert.alert(item.name, 'Selecciona una acción', [
-                {
-                  text: 'Editar',
-                  onPress: () => openEdit(item),
-                },
-                {
-                  text: 'Eliminar',
-                  style: 'destructive',
-                  onPress: () => handleDelete(item._id),
-                },
-                { text: 'Cancelar', style: 'cancel' },
-              ]);
-            }}
-            onLongPress={() => openEdit(item)}
+            onPress={() => openEdit(item)}
           >
             <View style={styles.projectInfo}>
               <View style={[styles.projectDot, { backgroundColor: item.color || colors.primary }]} />
