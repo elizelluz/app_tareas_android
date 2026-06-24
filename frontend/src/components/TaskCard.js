@@ -8,7 +8,13 @@ const priorityColors = {
   Baja: colors.priority.Baja,
 };
 
-export default function TaskCard({ task, onPress, onComplete, onDelete, compact }) {
+const statusColors = {
+  pending: '#FF6B6B',
+  in_progress: '#FFB347',
+  completed: '#51CF66',
+};
+
+export default function TaskCard({ task, onPress, onMove, onDelete, moveLabel, compact }) {
   return (
     <TouchableOpacity
       style={[styles.card, compact && styles.compactCard, task.completed && styles.completedCard]}
@@ -29,13 +35,15 @@ export default function TaskCard({ task, onPress, onComplete, onDelete, compact 
           {task.title}
         </Text>
         <View style={styles.actionBtns}>
-          <TouchableOpacity
-            style={styles.completeBtn}
-            onPress={() => onComplete(task)}
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-          >
-            <Text style={styles.completeText}>✓</Text>
-          </TouchableOpacity>
+          {moveLabel && (
+            <TouchableOpacity
+              style={styles.moveBtn}
+              onPress={() => onMove(task)}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              <Text style={styles.moveText}>{'>'}</Text>
+            </TouchableOpacity>
+          )}
           <TouchableOpacity
             style={styles.deleteBtn}
             onPress={() => onDelete(task._id)}
@@ -71,6 +79,27 @@ export default function TaskCard({ task, onPress, onComplete, onDelete, compact 
             {new Date(task.due_date).toLocaleDateString()}
           </Text>
         ) : null}
+        <View style={styles.spacer} />
+        {task.status && (
+          <View
+            style={[
+              styles.statusBadge,
+              { backgroundColor: (statusColors[task.status] || '#999') + '20' },
+            ]}
+          >
+            <Text
+              style={[
+                styles.statusText,
+                { color: statusColors[task.status] || '#999' },
+              ]}
+            >
+              {task.status === 'pending' ? 'Pendiente' : task.status === 'in_progress' ? 'En curso' : 'Lista'}
+            </Text>
+          </View>
+        )}
+        {moveLabel && (
+          <Text style={styles.moveLabel}>{moveLabel}</Text>
+        )}
       </View>
     </TouchableOpacity>
   );
@@ -131,7 +160,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 8,
-    gap: 8,
+    gap: 6,
   },
   categoryTag: {
     paddingHorizontal: 8,
@@ -146,18 +175,37 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: colors.textSecondary,
   },
-  completeBtn: {
+  spacer: {
+    flex: 1,
+  },
+  statusBadge: {
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  statusText: {
+    fontSize: 9,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 0.3,
+  },
+  moveBtn: {
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: '#51CF6615',
+    backgroundColor: colors.primary + '15',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  completeText: {
-    fontSize: 14,
-    color: colors.priority.Baja,
+  moveText: {
+    fontSize: 16,
+    color: colors.primary,
     fontWeight: '700',
+  },
+  moveLabel: {
+    fontSize: 9,
+    color: colors.primary,
+    fontWeight: '600',
   },
   deleteBtn: {
     width: 28,

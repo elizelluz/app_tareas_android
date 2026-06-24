@@ -58,6 +58,11 @@ export default function StatsScreen() {
           </View>
           <View style={styles.headerDivider} />
           <View style={styles.headerStat}>
+            <Text style={[styles.headerNumber, { color: '#FFB347' }]}>{stats.in_progress}</Text>
+            <Text style={styles.headerLabel}>En Proceso</Text>
+          </View>
+          <View style={styles.headerDivider} />
+          <View style={styles.headerStat}>
             <Text style={[styles.headerNumber, { color: '#51CF66' }]}>{stats.completed}</Text>
             <Text style={styles.headerLabel}>Completadas</Text>
           </View>

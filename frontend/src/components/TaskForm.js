@@ -46,6 +46,7 @@ export default function TaskForm({ visible, onClose, onSubmit, initial }) {
       priority,
       category,
       due_date: dueDate || null,
+      status: initial?.status || 'pending',
     });
   };
 

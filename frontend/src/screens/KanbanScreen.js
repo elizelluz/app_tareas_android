@@ -7,15 +7,11 @@ import {
   StyleSheet,
   RefreshControl,
   Alert,
-  Dimensions,
 } from 'react-native';
 import KanbanColumn from '../components/KanbanColumn';
 import TaskForm from '../components/TaskForm';
 import { fetchTasks, createTask, updateTask, deleteTask } from '../api/tasks';
 import { colors } from '../theme/colors';
-
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const COLUMN_WIDTH = Math.min(300, SCREEN_WIDTH * 0.8);
 
 export default function KanbanScreen() {
   const [tasks, setTasks] = useState([]);
@@ -42,8 +38,9 @@ export default function KanbanScreen() {
     setRefreshing(false);
   }, [loadTasks]);
 
-  const pending = tasks.filter((t) => !t.completed);
-  const completed = tasks.filter((t) => t.completed);
+  const pending = tasks.filter((t) => t.status === 'pending');
+  const inProgress = tasks.filter((t) => t.status === 'in_progress');
+  const completed = tasks.filter((t) => t.status === 'completed');
 
   const handleCreate = async (taskData) => {
     try {
@@ -65,9 +62,15 @@ export default function KanbanScreen() {
     setModalVisible(true);
   };
 
-  const handleMove = async (task) => {
+  const handleMoveNext = async (task) => {
+    const nextStatus =
+      task.status === 'pending'
+        ? 'in_progress'
+        : task.status === 'in_progress'
+          ? 'completed'
+          : 'pending';
     try {
-      await updateTask(task._id, { completed: !task.completed });
+      await updateTask(task._id, { status: nextStatus });
       await loadTasks();
     } catch (e) {
       console.error(e);
@@ -126,17 +129,29 @@ export default function KanbanScreen() {
           title="Pendientes"
           tasks={pending}
           color="#FF6B6B"
+          nextLabel="→ En Proceso"
           onEdit={handleEdit}
-          onMove={handleMove}
+          onMove={handleMoveNext}
           onDelete={handleDelete}
           emptyMessage="No hay tareas pendientes"
+        />
+        <KanbanColumn
+          title="En Proceso"
+          tasks={inProgress}
+          color="#FFB347"
+          nextLabel="→ Completada"
+          onEdit={handleEdit}
+          onMove={handleMoveNext}
+          onDelete={handleDelete}
+          emptyMessage="No hay tareas en proceso"
         />
         <KanbanColumn
           title="Completadas"
           tasks={completed}
           color="#51CF66"
+          nextLabel="→ Pendiente"
           onEdit={handleEdit}
-          onMove={handleMove}
+          onMove={handleMoveNext}
           onDelete={handleDelete}
           emptyMessage="No hay tareas completadas"
         />
@@ -193,6 +208,5 @@ const styles = StyleSheet.create({
   },
   board: {
     padding: 12,
-    gap: 0,
   },
 });

@@ -4,7 +4,7 @@ from bson import ObjectId
 from datetime import datetime
 
 from database import tasks_collection
-from models import TaskCreate, TaskUpdate
+from models import TaskCreate, TaskUpdate, Status
 
 app = FastAPI(title="Task Manager API")
 
@@ -17,6 +17,9 @@ app.add_middleware(
 )
 
 def serialize_task(task):
+    status = task.get("status")
+    if not status:
+        status = "completed" if task.get("completed", False) else "pending"
     return {
         "_id": str(task["_id"]),
         "title": task["title"],
@@ -24,12 +27,13 @@ def serialize_task(task):
         "priority": task["priority"],
         "category": task["category"],
         "due_date": task.get("due_date"),
-        "completed": task.get("completed", False),
+        "status": status,
+        "completed": status == "completed",
         "created_at": task.get("created_at", datetime.now().isoformat()),
     }
 
 @app.get("/api/tasks")
-async def get_tasks(search: str = "", priority: str = "", category: str = ""):
+async def get_tasks(search: str = "", priority: str = "", category: str = "", status: str = ""):
     query = {}
     if search:
         query["title"] = {"$regex": search, "$options": "i"}
@@ -37,6 +41,8 @@ async def get_tasks(search: str = "", priority: str = "", category: str = ""):
         query["priority"] = priority
     if category:
         query["category"] = category
+    if status:
+        query["status"] = status
 
     tasks = await tasks_collection.find(query).sort("created_at", -1).to_list(1000)
     return [serialize_task(t) for t in tasks]
@@ -44,8 +50,10 @@ async def get_tasks(search: str = "", priority: str = "", category: str = ""):
 @app.get("/api/tasks/stats")
 async def get_stats():
     total = await tasks_collection.count_documents({})
-    completed = await tasks_collection.count_documents({"completed": True})
-    pending = total - completed
+
+    pending = await tasks_collection.count_documents({"status": "pending"})
+    in_progress = await tasks_collection.count_documents({"status": "in_progress"})
+    completed = await tasks_collection.count_documents({"status": "completed"})
 
     pipeline = [
         {"$group": {"_id": "$priority", "count": {"$sum": 1}}}
@@ -59,8 +67,9 @@ async def get_stats():
 
     return {
         "total": total,
-        "completed": completed,
         "pending": pending,
+        "in_progress": in_progress,
+        "completed": completed,
         "by_priority": {p["_id"]: p["count"] for p in by_priority},
         "by_category": {c["_id"]: c["count"] for c in by_category},
     }
@@ -68,7 +77,6 @@ async def get_stats():
 @app.post("/api/tasks")
 async def create_task(task: TaskCreate):
     doc = task.model_dump()
-    doc["completed"] = False
     doc["created_at"] = datetime.now().isoformat()
     result = await tasks_collection.insert_one(doc)
     created = await tasks_collection.find_one({"_id": result.inserted_id})
@@ -79,6 +87,9 @@ async def update_task(task_id: str, task: TaskUpdate):
     update_data = {k: v for k, v in task.model_dump().items() if v is not None}
     if not update_data:
         raise HTTPException(400, "No fields to update")
+
+    if "completed" in update_data:
+        update_data["status"] = "completed" if update_data.pop("completed") else "pending"
 
     result = await tasks_collection.update_one(
         {"_id": ObjectId(task_id)}, {"$set": update_data}

@@ -3,7 +3,13 @@ import { View, Text, FlatList, StyleSheet } from 'react-native';
 import TaskCard from './TaskCard';
 import { colors } from '../theme/colors';
 
-export default function KanbanColumn({ title, tasks, color, onEdit, onMove, onDelete, emptyMessage }) {
+const columnIcons = {
+  Pendientes: '📋',
+  'En Proceso': '⚡',
+  Completadas: '✅',
+};
+
+export default function KanbanColumn({ title, tasks, color, nextLabel, onEdit, onMove, onDelete, emptyMessage }) {
   return (
     <View style={styles.column}>
       <View style={styles.header}>
@@ -21,23 +27,17 @@ export default function KanbanColumn({ title, tasks, color, onEdit, onMove, onDe
             <TaskCard
               task={item}
               onPress={onEdit}
-              onComplete={onMove}
+              onMove={onMove}
               onDelete={onDelete}
+              moveLabel={nextLabel}
             />
-            <View style={styles.cardFooter}>
-              <Text style={styles.cardDate}>
-                {item.due_date
-                  ? new Date(item.due_date).toLocaleDateString()
-                  : 'Sin fecha'}
-              </Text>
-            </View>
           </View>
         )}
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           <View style={styles.empty}>
-            <Text style={styles.emptyIcon}>{title === 'Pendientes' ? '📋' : '✅'}</Text>
+            <Text style={styles.emptyIcon}>{columnIcons[title] || '📌'}</Text>
             <Text style={styles.emptyText}>{emptyMessage}</Text>
           </View>
         }
@@ -48,7 +48,7 @@ export default function KanbanColumn({ title, tasks, color, onEdit, onMove, onDe
 
 const styles = StyleSheet.create({
   column: {
-    width: 300,
+    width: 280,
     backgroundColor: '#F0F2F5',
     borderRadius: 16,
     marginHorizontal: 6,
@@ -90,14 +90,6 @@ const styles = StyleSheet.create({
   },
   cardWrapper: {
     marginBottom: 8,
-  },
-  cardFooter: {
-    paddingHorizontal: 4,
-    paddingTop: 2,
-  },
-  cardDate: {
-    fontSize: 11,
-    color: colors.textSecondary,
   },
   empty: {
     alignItems: 'center',

@@ -14,12 +14,18 @@ class Category(str, Enum):
     compras = "Compras"
     otros = "Otros"
 
+class Status(str, Enum):
+    pending = "pending"
+    in_progress = "in_progress"
+    completed = "completed"
+
 class TaskCreate(BaseModel):
     title: str
     description: Optional[str] = ""
     priority: Priority = Priority.media
     category: Category = Category.otros
     due_date: Optional[str] = None
+    status: Status = Status.pending
 
 class TaskUpdate(BaseModel):
     title: Optional[str] = None
@@ -27,6 +33,7 @@ class TaskUpdate(BaseModel):
     priority: Optional[Priority] = None
     category: Optional[Category] = None
     due_date: Optional[str] = None
+    status: Optional[Status] = None
     completed: Optional[bool] = None
 
 class TaskDB(BaseModel):
@@ -36,5 +43,6 @@ class TaskDB(BaseModel):
     priority: Priority
     category: Category
     due_date: Optional[str] = None
+    status: Status = Status.pending
     completed: bool = False
     created_at: str
