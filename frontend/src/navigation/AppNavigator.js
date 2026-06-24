@@ -1,8 +1,7 @@
 import React from 'react';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import { View, Text, StyleSheet } from 'react-native';
-import TasksScreen from '../screens/TasksScreen';
-import CompletedScreen from '../screens/CompletedScreen';
+import { StyleSheet } from 'react-native';
+import KanbanScreen from '../screens/KanbanScreen';
 import StatsScreen from '../screens/StatsScreen';
 import { colors } from '../theme/colors';
 
@@ -19,8 +18,7 @@ export default function AppNavigator() {
         tabBarInactiveTintColor: colors.textSecondary,
       }}
     >
-      <Tab.Screen name="Tareas" component={TasksScreen} />
-      <Tab.Screen name="Completadas" component={CompletedScreen} />
+      <Tab.Screen name="Kanban" component={KanbanScreen} />
       <Tab.Screen name="Estadísticas" component={StatsScreen} />
     </Tab.Navigator>
   );

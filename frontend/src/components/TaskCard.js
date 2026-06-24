@@ -8,74 +8,69 @@ const priorityColors = {
   Baja: colors.priority.Baja,
 };
 
-export default function TaskCard({ task, onPress, onComplete, onDelete }) {
+export default function TaskCard({ task, onPress, onComplete, onDelete, compact }) {
   return (
     <TouchableOpacity
-      style={[styles.card, task.completed && styles.completedCard]}
+      style={[styles.card, compact && styles.compactCard, task.completed && styles.completedCard]}
       onPress={() => onPress(task)}
       activeOpacity={0.7}
     >
-      <View style={styles.leftSection}>
+      <View style={styles.headerRow}>
         <View
           style={[
             styles.priorityDot,
             { backgroundColor: priorityColors[task.priority] },
           ]}
         />
-        <View style={styles.textSection}>
-          <Text
-            style={[
-              styles.title,
-              task.completed && styles.completedText,
-            ]}
-            numberOfLines={1}
+        <Text
+          style={[styles.title, task.completed && styles.completedText]}
+          numberOfLines={1}
+        >
+          {task.title}
+        </Text>
+        <View style={styles.actionBtns}>
+          <TouchableOpacity
+            style={styles.completeBtn}
+            onPress={() => onComplete(task)}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            {task.title}
-          </Text>
-          {task.description ? (
-            <Text style={styles.description} numberOfLines={1}>
-              {task.description}
-            </Text>
-          ) : null}
-          <View style={styles.tags}>
-            <View
-              style={[
-                styles.tag,
-                { backgroundColor: colors.category[task.category] + '20' },
-              ]}
-            >
-              <Text
-                style={[
-                  styles.tagText,
-                  { color: colors.category[task.category] },
-                ]}
-              >
-                {task.category}
-              </Text>
-            </View>
-            {task.due_date ? (
-              <Text style={styles.date}>
-                {new Date(task.due_date).toLocaleDateString()}
-              </Text>
-            ) : null}
-          </View>
+            <Text style={styles.completeText}>✓</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.deleteBtn}
+            onPress={() => onDelete(task._id)}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <Text style={styles.deleteText}>✕</Text>
+          </TouchableOpacity>
         </View>
       </View>
-      <View style={styles.actions}>
-        <TouchableOpacity
-          style={styles.completeBtn}
-          onPress={() => onComplete(task)}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+      {task.description ? (
+        <Text style={styles.description} numberOfLines={2}>
+          {task.description}
+        </Text>
+      ) : null}
+      <View style={styles.footerRow}>
+        <View
+          style={[
+            styles.categoryTag,
+            { backgroundColor: colors.category[task.category] + '20' },
+          ]}
         >
-          <Text style={styles.completeText}>✓</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.deleteBtn}
-          onPress={() => onDelete(task._id)}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-        >
-          <Text style={styles.deleteText}>✕</Text>
-        </TouchableOpacity>
+          <Text
+            style={[
+              styles.categoryText,
+              { color: colors.category[task.category] },
+            ]}
+          >
+            {task.category}
+          </Text>
+        </View>
+        {task.due_date ? (
+          <Text style={styles.date}>
+            {new Date(task.due_date).toLocaleDateString()}
+          </Text>
+        ) : null}
       </View>
     </TouchableOpacity>
   );
@@ -83,12 +78,10 @@ export default function TaskCard({ task, onPress, onComplete, onDelete }) {
 
 const styles = StyleSheet.create({
   card: {
-    flexDirection: 'row',
-    alignItems: 'center',
     backgroundColor: colors.white,
     borderRadius: 12,
-    padding: 16,
-    marginHorizontal: 16,
+    padding: 14,
+    marginHorizontal: 4,
     marginVertical: 4,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
@@ -96,11 +89,13 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
   },
-  completedCard: {
-    opacity: 0.6,
+  compactCard: {
+    marginHorizontal: 0,
   },
-  leftSection: {
-    flex: 1,
+  completedCard: {
+    opacity: 0.55,
+  },
+  headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
   },
@@ -108,13 +103,12 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    marginRight: 12,
-  },
-  textSection: {
-    flex: 1,
+    marginRight: 8,
+    flexShrink: 0,
   },
   title: {
-    fontSize: 16,
+    flex: 1,
+    fontSize: 14,
     fontWeight: '600',
     color: colors.text,
   },
@@ -122,58 +116,59 @@ const styles = StyleSheet.create({
     textDecorationLine: 'line-through',
     color: colors.textSecondary,
   },
-  description: {
-    fontSize: 13,
-    color: colors.textSecondary,
-    marginTop: 2,
+  actionBtns: {
+    flexDirection: 'row',
+    gap: 4,
+    marginLeft: 6,
   },
-  tags: {
+  description: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    marginTop: 6,
+    lineHeight: 16,
+  },
+  footerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 6,
+    marginTop: 8,
     gap: 8,
   },
-  tag: {
+  categoryTag: {
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 6,
   },
-  tagText: {
-    fontSize: 11,
+  categoryText: {
+    fontSize: 10,
     fontWeight: '600',
   },
   date: {
-    fontSize: 11,
+    fontSize: 10,
     color: colors.textSecondary,
   },
-  actions: {
-    flexDirection: 'row',
-    gap: 6,
-    marginLeft: 8,
-  },
   completeBtn: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     backgroundColor: '#51CF6615',
     alignItems: 'center',
     justifyContent: 'center',
   },
   completeText: {
-    fontSize: 16,
+    fontSize: 14,
     color: colors.priority.Baja,
     fontWeight: '700',
   },
   deleteBtn: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     backgroundColor: '#FF6B6B15',
     alignItems: 'center',
     justifyContent: 'center',
   },
   deleteText: {
-    fontSize: 14,
+    fontSize: 12,
     color: colors.priority.Alta,
     fontWeight: '700',
   },
